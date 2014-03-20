@@ -1,0 +1,14 @@
+Package: EloRating
+Type: Package
+Title: Animal Dominance Hierarchies by Elo Rating
+Version: 0.41
+Depends: zoo
+Date: 2014-03-20
+Author: Christof Neumann & Lars Kulik
+Maintainer: Christof Neumann <christofneumann1@gmail.com>
+Description: Calculate Elo ratings as means to describe animal dominance hierarchies
+License: GPL (>= 2)
+Packaged: 2014-03-20 17:29:29 UTC; cn
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2014-03-20 21:04:24
