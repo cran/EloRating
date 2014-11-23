@@ -26,7 +26,7 @@ option to supply data about presence and absence of individuals for part of the 
 the value of Elo ratings of the two individuals that are involved in the first interaction of the overall sequence prior to this interaction. By default set to 1000. See also \code{init}.
 }
   \item{k}{
-factor \emph{k} that determines the maximum change in ratings. default=100
+factor \emph{k} that determines the maximum change in ratings. By default \code{k=100}
 }
   \item{init}{
 what Elo rating does an individual have prior to its first interaction. Three options are available:
@@ -38,7 +38,10 @@ what Elo rating does an individual have prior to its first interaction. Three op
 not yet implemented
 }
   \item{runcheck}{
-should several checks regarding data integrety be performed. by default \code{TRUE}. See \link{seqcheck}
+should several checks regarding data integrety be performed, by default \code{TRUE}. See \link{seqcheck}
+}
+  \item{progressbar}{
+should progress bars be displayed, by default \code{progressbar=TRUE}
 }
 }
 \details{

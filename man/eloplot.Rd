@@ -32,6 +32,8 @@ the plot is either colored (\code{TRUE}) or in black and white with symbols
 }
 \details{
 For a visual inspection of an Elo object it is useful to plot the calculated trajectories. We recommend not to plot trajectories for more than 20 individuals at once.
+
+Note also, if plots for IDs are requested that had observations on only one day, these IDs are excluded from plotting and a corresponding warning message is produced.
 }
 \author{
 Lars Kulik & Christof Neumann

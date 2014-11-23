@@ -1,16 +1,19 @@
+# individuals 14_07_24
 
-
-individuals <- function(eloobject, from=eloobject$misc["maxDate"], to=NULL, outp="N") {
+individuals <- function(eloobject, from=eloobject$misc["maxDate"], to=NULL, outp=c("N", "IDs", "CV")) {
   # outp:
   # N - (mean) number of individuals
   # IDs - IDs that were present on at least one of the day(s)
   # CV - coefficient of variation of N
   
   # some checks and prelims
+  outp <- match.arg(outp)
+  
   if(!is.null(to)) { 
     if(to==from) to <- NULL 
-  #  if(as.Date(to)<as.Date(from)) stop("the 'to' date lies before the starting ('from') date")
+    #  if(as.Date(to)<as.Date(from)) stop("the 'to' date lies before the starting ('from') date")
   }
+  
   
   # create vector with all dates (according to date range in eloobject)
   DR <- seq(from=as.Date(eloobject$misc["minDate"]), to=as.Date(eloobject$misc["maxDate"]), by="day")
@@ -38,3 +41,4 @@ individuals <- function(eloobject, from=eloobject$misc["maxDate"], to=NULL, outp
   return(res)
   
 }
+

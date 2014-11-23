@@ -1,20 +1,10 @@
-# winner <- adv$winner
-# loser <- adv$loser
-# Date <- adv$Date
-# presence <- advpres
-# draw=NULL
-# 
-# winner <- R1$Winner
-# loser <- R1$Loser
-# Date <- R1$Date
-# presence <- NULL
-# draw=NULL
+# elo.seq 14_11_19
 
-elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=1000, k=100, init="average", iterate=0, runcheck=TRUE) {
+elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=1000, k=100, init="average", iterate=0, runcheck=TRUE, progressbar=TRUE) {
   
   if(runcheck) {
     rc <- seqcheck(winner, loser, Date, draw, presence)
-    if(sum(rc$checksum[c("IDcheck", "selfinteractions", "startpresence1", "startpresence2", "endpresence1", "endpresence2", "IDmatch", "IA_presencematch", "presenceentries", "datecol", "length")]) > 0) stop("there appear to be some problems with your data, please consider running 'seqcheck()'\notherwise set runcheck=FALSE")
+    if(sum(rc$checksum[c("IDcheck", "selfinteractions", "startpresence1", "startpresence2", "endpresence1", "endpresence2", "IDmatch", "IA_presencematch", "presenceentries", "datecol", "length", "continouspres")]) > 0) stop("there appear to be some problems with your data, please consider running 'seqcheck()'\notherwise set runcheck=FALSE")
   }
   
   # IDs as character strings and dates as proper dates
@@ -35,7 +25,7 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   truedates <- seq(min(Date), max(Date), by="day")
   # all IDs present in the data
   allids <- unique(c(winner, loser))
-
+  
   # matrix with all dates (rows) and all ids (columns) (no rownames or special date-column set since working with numeric dates ('ndat'))
   mat <- matrix(nrow = max(ndat), ncol=length(allids)); colnames(mat) <- allids
   
@@ -185,11 +175,14 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   }
   if(init=="bottom_low" | init=="bottom") {
     # progress bar
-    print("loop 1: Elo calculations")
-    #flush.console()
-    progbar <- txtProgressBar(min = 0, max = length(winner), style = 3, char=".")
+    if(progressbar) {
+      print("loop 1: Elo calculations")
+      #flush.console()
+      progbar <- txtProgressBar(min = 0, max = length(winner), style = 3, char=".")
+    }
+    
     for(i in 2:length(ndat)) {
-      setTxtProgressBar(progbar, i) 
+      if(progressbar) setTxtProgressBar(progbar, i) 
       # grab minimum and who has the minimum
       min.rec.elo <- min(tempelo[1,], na.rm=T)
       # short versions for some objects (can maybe be removed later...)
@@ -238,12 +231,15 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   
   if(init=="average") {
     # progress bar
-    print("loop 1: Elo calculations")
-    #flush.console()
-    progbar <- txtProgressBar(min = 0, max = length(winner), style = 3, char=".")
+    if(progressbar) {
+      print("loop 1: Elo calculations")
+      #flush.console()
+      progbar <- txtProgressBar(min = 0, max = length(winner), style = 3, char=".")
+    }
+    
     log.entry.bottom=cbind(1,"")
     for(i in 2:length(ndat)) {
-      setTxtProgressBar(progbar, i) 
+      if(progressbar) setTxtProgressBar(progbar, i) 
       # short versions for some objects (can maybe be removed later...)
       W <- winner[i]; L <- loser[i]; D <- ndat[i]
       # update tempelo with immigrants indication
@@ -282,7 +278,7 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   }
   # 'average section' END
   
-  close(progbar)
+  if(progressbar) close(progbar)
   #############################################
   #--- loop through remaining interactions ---#
   #----------------- END ---------------------#
@@ -374,13 +370,15 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   rankdiffs <- c(); Idspresent <- c(); eloweights <- c()
   
   # progress bar
-  print("loop 2: Stability calculations")
-  #flush.console()
-  progbar <- txtProgressBar(min = 0, max = nrow(cmat), style = 3, char=".")
+  if(progressbar) {
+    print("loop 2: Stability calculations")
+    #flush.console()
+    progbar <- txtProgressBar(min = 0, max = nrow(cmat), style = 3, char=".")
+  }
   
   # this loop calculates Ci for each day (except for the first one)
   for(u in 2:nrow(cmat)) {
-    setTxtProgressBar(progbar, u) 
+    if(progressbar) setTxtProgressBar(progbar, u) 
     # calculates the ranks the day before the actual day
     r1 <- rank(cmat[u-1, ] * (-1), na.last = NA, ties.method = c("average"))
     # calculates the ranks on the test day
@@ -419,7 +417,7 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   dte <- seq(from=as.Date(min(Date)), to=as.Date(max(Date)), by=1)
   stability <- data.frame(date=dte[2:length(dte)], Idspresent, rankdiffs, eloweights)
   
-  close(progbar)
+  if(progressbar) close(progbar)
   
   ################################
   #--- stability calculations ---#
@@ -471,3 +469,4 @@ elo.seq <- function(winner, loser, Date, draw=NULL, presence=NULL, startvalue=10
   class(res) <- "elo"
   return(res)
 }
+

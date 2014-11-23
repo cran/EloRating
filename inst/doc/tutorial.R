@@ -1,9 +1,11 @@
-### R code from vignette source 'EloRating-tutorial.Rnw'
+### R code from vignette source 'tutorial.Rnw'
+### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: "eloinstall" (eval = FALSE)
+### code chunk number 1: tutorial.Rnw:23-25
 ###################################################
-## install.packages("EloRating_0.31.tar.gz", type="source")
+options(width=80)
+options(continue=" ")
 
 
 ###################################################
@@ -16,8 +18,8 @@
 ### code chunk number 3: reading1
 ###################################################
 library(EloRating)
-xdata <- read.table("ex-sequence.txt", 
-                    header=T, sep="\t")
+xdata <- read.table(system.file("ex-sequence.txt", package = 'EloRating'),
+                    header=T)
 
 
 ###################################################
@@ -30,22 +32,21 @@ xdata <- read.table("ex-sequence.txt",
 ###################################################
 ### code chunk number 5: "seqcheck"
 ###################################################
-seqcheck(winner=xdata$winner, loser=xdata$loser, 
-         Date=xdata$Date)
+seqcheck(winner=xdata$winner, loser=xdata$loser, Date=xdata$Date)
 
 
 ###################################################
-### code chunk number 6: "eloseqhidden"
+### code chunk number 6: "eloseq" (eval = FALSE)
 ###################################################
-res <- elo.seq(winner=xdata$winner, loser=xdata$loser, 
-               Date=xdata$Date, runcheck=TRUE)
+## res <- elo.seq(winner=xdata$winner, loser=xdata$loser, Date=xdata$Date,
+##                runcheck=TRUE)
 
 
 ###################################################
-### code chunk number 7: "eloseq" (eval = FALSE)
+### code chunk number 7: "eloseqhidden"
 ###################################################
-## res <- elo.seq(winner=xdata$winner, loser=xdata$loser, 
-##                Date=xdata$Date, runcheck=TRUE)
+res <- elo.seq(winner=xdata$winner, loser=xdata$loser, Date=xdata$Date,
+               runcheck=TRUE)
 
 
 ###################################################
@@ -90,8 +91,10 @@ eloplot(res,ids=c("s", "a", "w", "k", "c"),
 ###################################################
 ### code chunk number 14: "reading2"
 ###################################################
-xpres <- read.table("ex-presence.txt", 
-                    header=T, sep="\t")
+#xpres <- read.table("ex-presence.txt", 
+                    #header=T, sep="\t")
+xpres <- read.table(system.file("ex-presence.txt", package = 'EloRating'), header=T)
+
 xpres[,1] <- as.Date(as.character(xpres[,1]))
 
 
@@ -189,8 +192,8 @@ sum(creatematrix(res2))
 creatematrix(res2, drawmethod="0.5")
 sum(creatematrix(res2, drawmethod="0.5"))
 # "c" and "n" are omitted
-creatematrix(res2, "2000-06-10", "2000-06-16")
-creatematrix(res2, "2000-06-10", "2000-06-16", 
+creatematrix(res2, c("2000-06-10", "2000-06-16"))
+creatematrix(res2, c("2000-06-10", "2000-06-16"), 
              onlyinteracting=TRUE)
 
 
@@ -218,5 +221,69 @@ xres <- elo.seq(rdata$seqdat$winner, rdata$seqdat$loser,
 ### code chunk number 31: simu4
 ###################################################
 summary(xres)
+
+
+###################################################
+### code chunk number 32: DS
+###################################################
+data(bonobos)
+DS(bonobos)
+
+
+###################################################
+### code chunk number 33: tutorial.Rnw:306-308
+###################################################
+data(bonobos)
+xdata <- randomelo(bonobos, 5)
+
+
+###################################################
+### code chunk number 34: tutorial.Rnw:310-312 (eval = FALSE)
+###################################################
+## data(bonobos)
+## xdata <- randomelo(bonobos, 100)
+
+
+###################################################
+### code chunk number 35: tutorial.Rnw:314-315
+###################################################
+res <- data.frame(ID=colnames(xdata[[1]]), avg=round(colMeans(xdata[[1]]),1))
+
+
+###################################################
+### code chunk number 36: tutorial.Rnw:319-321
+###################################################
+ds <- DS(bonobos)
+ds <- ds[order(ds$ID), ]
+
+
+###################################################
+### code chunk number 37: fig5plot
+###################################################
+plot(ds$normDS, res$avg, xlab="David's score", 
+     ylab="randomized average Elo rating", las=1)
+
+
+###################################################
+### code chunk number 38: fig5
+###################################################
+plot(ds$normDS, res$avg, xlab="David's score", 
+     ylab="randomized average Elo rating", las=1)
+
+
+###################################################
+### code chunk number 39: tutorial.Rnw:342-345
+###################################################
+data(adv); data(advpres)
+x <- elo.seq(winner=adv$winner, loser=adv$loser, Date=adv$Date, 
+             presence=advpres)
+
+
+###################################################
+### code chunk number 40: tutorial.Rnw:347-350
+###################################################
+prunk(x, c("2010-01-01", "2010-01-15"))
+mat <- creatematrix(x, c("2010-01-01", "2010-01-15"))
+prunk(mat)
 
 

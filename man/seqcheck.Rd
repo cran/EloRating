@@ -39,7 +39,8 @@ Errors:\cr
 \code{presence starts AFTER data}: indicates that during interactions at the beginning of the sequence, no corresponding information was found in the presence data. Solution: augment presence data, or remove interactions until the date on which presence data starts\cr
 \code{presence stops BEFORE data}: refers to the corresponding problem towards the end of interaction and presence data\cr
 \code{during the following interactions, IDs were absent...}: indicates that according to the presence data, IDs were absent (i.e. "0"), but interactions with them occured on the very date(s) according to the interaction data\cr
-\code{the following IDs occur in the data sequence but NOT...}: there is/are no columns corresponding to the listed IDs in the presence data
+\code{the following IDs occur in the data sequence but NOT...}: there is/are no columns corresponding to the listed IDs in the presence data\cr
+\code{there appear to be gaps in your presence (days missing?)...}: check whether your presence data includes a line for \emph{each date} starting from the date of the first interaction through to the date of the last interaction
 
 Warnings:\cr
 \code{presence continues beyond data}: indicates that presence and interaction data do not end on the same date.\cr
@@ -55,7 +56,8 @@ Errors:\cr
 
 Warnings:\cr
 \code{IDs occur in the data with inconsistent capitalization}: because \code{R} is case-sensitive, "A" and "a" are considered different individuals. If such labelling of IDs is on purpose, ignore the warning and set \code{runcheck=FALSE} when calling \code{elo.seq()}\cr
-\code{There is (are) X case(s) in which loser ID equals winner ID}: winner and loser represent the same ID
+\code{There is (are) X case(s) in which loser ID equals winner ID}: winner and loser represent the same ID\cr
+\code{the following individuals were observed only on one day}: while not per se a problem for the calculation of Elo ratings, individuals that were observed only on one day (irrespective of the number of interactions on that day) cannot be plotted. \code{\link{eloplot}} will give a warning in such cases, too.
 }
 \value{
 returns info about possible errors, or states that data are fine for running with \link{elo.seq}

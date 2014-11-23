@@ -4,31 +4,28 @@
 create a dominance matrix
 }
 \description{
-create a dominance matrix from the underlying sequence
+create a dominance matrix from the underlying observed sequence
 }
 \usage{
-creatematrix(eloobject, from="start", to="end",
-             drawmethod=c("omit"), onlyinteracting=FALSE)
+creatematrix(eloobject, daterange=NULL,
+             drawmethod="omit", onlyinteracting=FALSE)
 }
 \arguments{
   \item{eloobject}{
-    output from \link{elo.seq}.
+    output from \code{\link{elo.seq}}
 }
-  \item{from}{
-    date from which on the matrix should start (default is first in sequence)
-}
-  \item{to}{
-    date up to which the matrix should runs (default is last in sequence)
+  \item{daterange}{
+    date range to which the matrix should correspond (default from beginning to end of sequence)
 }
   \item{drawmethod}{
-    "omit" = undecided interactions (draws/ties) are ignored (default).\cr
+    "omit" = undecided interactions (draws/ties) are ignored (default)\cr
     "0.5" = each undecided is counted half a win for each dyad member\cr
     "1" = each undecided interaction is counted twice, i.e. as win for both individuals
 }
   \item{onlyinteracting}{
     logical. Indicating whether all individuals that were present (default) are shown in the matrix, or 
     only those that were involved in an interaction in the specified date period. If no presence data 
-    was supplied to \link{elo.seq}, it is assumed that all individuals were present at all times.
+    was supplied to \code{\link{elo.seq}}, it is assumed that all individuals were present at all times.
 }
 }
 \value{
@@ -43,10 +40,10 @@ SEQ <- elo.seq(winner=adv$winner, loser=adv$loser, Date=adv$Date)
 # create dyadic matrix over the entire period of data collection
 creatematrix(SEQ)
 # limit to a subset of interactions
-creatematrix(SEQ, from="2010-01-25", to="2010-02-01")
+creatematrix(SEQ, daterange=c("2010-01-25", "2010-02-01"))
 # limit to a subset of interactions and show only those IDs that were 
 # involved in at least one interaction
-creatematrix(SEQ, from="2010-01-25", to="2010-02-01",
+creatematrix(SEQ, daterange=c("2010-01-25", "2010-02-01"),
              onlyinteracting=TRUE)
 
 ## dealing with undecided interactions

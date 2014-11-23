@@ -12,8 +12,8 @@ Calculate Elo ratings as means to describe animal dominance hierarchies
 \tabular{ll}{
 Package: \tab EloRating\cr
 Type: \tab Package\cr
-Version: \tab 0.41\cr
-Date: \tab 2014-03-20\cr
+Version: \tab 0.43\cr
+Date: \tab 2014-11-23\cr
 License: \tab GPL (>= 2)\cr
 }
 }

@@ -1,16 +1,4 @@
-# winner <- adv$winner
-# loser <- adv$loser
-# Date <- adv$Date
-# presence <- advpres
-# draw <- NULL
-# presence <- NULL
-# 
-# winner <- R1$Winner
-# loser <- R1$Loser
-# Date <- R1$Date
-# presence <- NULL
-# draw=NULL
-
+# seqcheck 14_11_19
 
 
 seqcheck <- function(winner, loser, Date, draw=NULL, presence=NULL) {
@@ -19,8 +7,8 @@ seqcheck <- function(winner, loser, Date, draw=NULL, presence=NULL) {
   # check some general issues 
   
   # creating checksum
-  checksum <- rep(0, 12)
-  names(checksum) <- c("IDcheck", "selfinteractions", "presence", "startpresence1", "startpresence2", "endpresence1", "endpresence2", "IDmatch", "IA_presencematch", "presenceentries", "datecol", "length")
+  checksum <- rep(0, 14)
+  names(checksum) <- c("IDcheck", "selfinteractions", "presence", "startpresence1", "startpresence2", "endpresence1", "endpresence2", "IDmatch", "IA_presencematch", "presenceentries", "datecol", "length", "singledayobs", "continouspres")
   
   Date <- as.Date(as.character(Date))
   
@@ -71,6 +59,18 @@ seqcheck <- function(winner, loser, Date, draw=NULL, presence=NULL) {
         checksum["datecol"] <- 1
       }
     }
+    
+    # check whether there are gaps in the presence data...
+    if(!is.null(presence) & checksum["datecol"]==0) {
+      if(nrow(presence) < as.numeric(diff(range(presence$Date)))+1) {
+        checksum["continouspres"] <- 1
+        continouspres <- "there appear to be gaps in your presence data (missing days?)"
+      }
+    } else {
+      continouspres <- "not checked"
+    }
+    
+    
     
     # check whether date range in presence is the same as in sequence data 
     START <- NA
@@ -152,16 +152,26 @@ seqcheck <- function(winner, loser, Date, draw=NULL, presence=NULL) {
       }
     }  
     
-
+    # check for cases in which IDs were observed only on a single day (even though multiple times is possible, but that doesnt make a difference...)
+    temp <- rbind(rowSums(table(winner, Date)>0)[allIDs], rowSums(table(loser, Date)>0)[allIDs])
+    colnames(temp) <- allIDs
+    sIDs <- "none"
+    if(1 %in% colSums(temp, na.rm=T)) {
+      checksum["singledayobs"] <- 1
+      sIDs <- colnames(temp)[colSums(temp, na.rm=T)==1]
+    }
+    
+    
     if(!is.null(presence)) {
-      res <- list(checksum = checksum, IDcheck=IDcheck, selfinteractions=selfinteractions, presence=presenceD, startpresence = START, endpresence = END, IDmatch=IDmatch, IA_presencematch = IA_presencematch, IA_presencematchN = IA_presencematchN, presenceentries = presenceentries, IDmatch1 = IDmatch1, IDmatch2 = IDmatch2, datecol = datecol)
+      res <- list(checksum = checksum, IDcheck=IDcheck, selfinteractions=selfinteractions, presence=presenceD, startpresence = START, endpresence = END, IDmatch=IDmatch, IA_presencematch = IA_presencematch, IA_presencematchN = IA_presencematchN, presenceentries = presenceentries, IDmatch1 = IDmatch1, IDmatch2 = IDmatch2, datecol = datecol, singledaycases=sIDs)
       class(res) <- "sequencecheck"
     }
     if(is.null(presence)) { 
-      res <- list(checksum = checksum, IDcheck=IDcheck, selfinteractions=selfinteractions, presence=presenceD)
+      res <- list(checksum = checksum, IDcheck=IDcheck, selfinteractions=selfinteractions, presence=presenceD, singledaycases=sIDs, continouspres=continouspres)
       class(res) <- "seqchecknopres"
     }
-  
+    
+    
   } # end part (conditional on vector length match)
   
   if(checksum["length"]==1) { 
@@ -169,7 +179,11 @@ seqcheck <- function(winner, loser, Date, draw=NULL, presence=NULL) {
     
     class(res) <- "seqchecknopres"
     
-    }
+  }
   
   return(res)
 }
+
+
+
+

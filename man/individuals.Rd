@@ -8,7 +8,7 @@ returns IDs, number or IDs, or CV of number of present individuals
 }
 \usage{
 individuals(eloobject, from=eloobject$misc["maxDate"], to=NULL,
-            outp="N")
+            outp=c("N", "IDs", "CV"))
 }
 \arguments{
   \item{eloobject}{
@@ -21,7 +21,7 @@ from which date onwards should the ID statistics be calculated. By default the f
 until which date should the ID statistics be calculated. By default \code{NULL}, i.e. the returned information refers to only the date specified by \code{from}
 }
   \item{outp}{
-one of three options to determine which kind of information is returned: (1) \code{"N"}: the (average) number of individuals present, (2) \code{"ID"}: the actual IDs, and (3): \code{"CV"}: coefficient of number of individuals present
+one of three options to determine which kind of information is returned: (1) \code{"N"}: the (average) number of individuals present, (2) \code{"IDs"}: the actual IDs, and (3): \code{"CV"}: coefficient of number of individuals present
 }
 }
 \details{
@@ -55,7 +55,3 @@ individuals(SEQ, from="2010-01-01", to="2010-01-31", outp="N")
 individuals(SEQ, from="2010-01-01", to="2010-01-31", outp="IDs")
 individuals(SEQ, from="2010-01-01", to="2010-01-31", outp="CV")
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
