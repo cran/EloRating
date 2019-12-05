@@ -1,16 +1,25 @@
 Package: EloRating
 Type: Package
 Title: Animal Dominance Hierarchies by Elo Rating
-Version: 0.46.8
-Date: 2019-06-14
-Author: Christof Neumann & Lars Kulik
+Version: 0.46.10
+Date: 2019-12-05
+Authors@R: c(
+  person(given="Christof", 
+         family="Neumann", 
+         role=c("aut", "cre"),
+         email="christofneumann1@gmail.com",
+         comment=c(ORCID="0000-0002-0236-1219")),
+  person(given = "Lars",
+         family = "Kulik",
+         role = c("aut"))
+  )
 Maintainer: Christof Neumann <christofneumann1@gmail.com>
 Description: Provides functions to quantify animal dominance hierarchies. The major focus is on Elo rating and its ability to deal with temporal dynamics in dominance interaction sequences. For static data, David's score and de Vries' I&SI are also implemented. In addition, the package provides functions to assess transitivity, linearity and stability of dominance networks. See Neumann et al (2011) <doi:10.1016/j.anbehav.2011.07.016> for an introduction.
 License: GPL (>= 2)
 LazyData: true
 RoxygenNote: 6.1.1
 Depends: zoo, sna, network, R (>= 3.2.0)
-Suggests: testthat, knitr, aniDom
+Suggests: testthat, knitr, aniDom, rmarkdown
 LinkingTo: Rcpp, RcppArmadillo
 Imports: Rcpp, Rdpack
 NeedsCompilation: yes
@@ -18,6 +27,9 @@ VignetteBuilder: knitr
 Encoding: UTF-8
 RdMacros: Rdpack
 URL: https://github.com/gobbios/EloRating
-Packaged: 2019-06-14 20:15:26 UTC; cn
+BugReports: https://github.com/gobbios/EloRating/issues
+Packaged: 2019-12-04 23:06:29 UTC; christofneumann
+Author: Christof Neumann [aut, cre] (<https://orcid.org/0000-0002-0236-1219>),
+  Lars Kulik [aut]
 Repository: CRAN
-Date/Publication: 2019-06-14 22:35:17 UTC
+Date/Publication: 2019-12-05 09:00:12 UTC

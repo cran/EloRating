@@ -463,7 +463,7 @@ winprob(1200, 1000, normprob = FALSE)
 winprob(1200, 1200)
 winprob(1200, 1200, normprob = FALSE)
 
-## ---- eval=TRUE, echo=FALSE, fig.width=7, fig.height=6, out.width="4in", fig.align='center', fig.cap="\\small Two ways of calculating winning probabilities. Up to a rating difference of 200 points, the two curves are virtually indistinguishable. The step-wise curves are taken from Elo 1978 and Albers and de Vries 2001, which provide tables in intervals, for example, the winning probability is 0.5 if the rating difference is between 0 and 3. Code to produce the figure is in the \\nameref{sec:appendix}. \\label{fig:differentprobs}"----
+## ---- eval=TRUE, echo=FALSE, fig.width=7, fig.height=6, out.width="4in", fig.align='center', fig.cap="\\small Three ways of calculating winning probabilities. Up to a rating difference of 200 points, the two curves proposed by Elo 1978 (red and gold) are virtually indistinguishable. The step-wise curves are taken from Elo 1978 and Albers and de Vries 2001, which provide tables in intervals, for example, the winning probability is 0.5 if the rating difference is between 0 and 3. The curve for the algorithm used by Feldblum and colleagues and Farine and colleagues, in contrast, is much steeper (grey line). Code to produce the figure is in the \\nameref{sec:appendix}. \\label{fig:differentprobs}"----
 elotable <- list(0:3, 4:10, 11:17, 18:24, 25:31, 32:38, 39:45, 46:52, 53:59, 60:66, 67:74, 75:81, 82:88, 89:96, 97:103, 104:111, 112:119, 120:127, 128:135, 136:143, 144:151, 152:159, 160:168, 169:177, 178:186, 187:195, 196:205, 206:214, 215:224, 225:235, 236:246, 247:257, 258:269, 270:281, 282:294, 295:308, 309:323, 324:338, 339:354, 355:372, 373:391, 392:412, 413:436, 437:463, 464:494, 495: 530, 531:576, 577:636, 637:726, 727:920, 921:1000)
 alberstable <- list(0:3, 4:10, 11:17, 18:25, 26:32, 33:39, 40:46, 47:53, 54:61, 62:68, 69:76, 77:83, 84:91, 92:98, 99:106, 107:113, 114:121, 122:129, 130:137, 138:145, 146:153, 154:162, 163:170, 171:179, 180:188, 189:197, 198:206, 207:215, 216:225, 226:235, 236:245, 246:256, 257:267, 268:278, 279:290, 291:302, 303:315, 316:328, 329:344, 345:357, 358:374, 375:391, 392:411, 412:432, 433:456, 457:484, 485:517, 518:559, 560:619, 620:735, 736:1000)
 
@@ -475,20 +475,24 @@ l <- w - 0:1000 # loser rating: varying
 
 elonorm <- numeric(length(w))
 eloexpo <- numeric(length(w))
+eloopti <- numeric(length(w))
 
 i=100
 for(i in 1:length(w)) {
   elonorm[i] <- winprob(w[i], l[i], normprob = TRUE)
   eloexpo[i] <- winprob(w[i], l[i], normprob = FALSE)
+  # EloOptimized package (same as aniDom with default parameters)
+  eloopti[i] <- 1/(1 + exp(-0.01 * (w[i] - l[i])))
 }
 
 plot(0, 0, "n", xlim = c(0, 1000), ylim = c(0.5, 1), xlab = "rating difference", ylab = "winning probability", las = 1, yaxs = "i")
 points(abs(l), elonorm, "l", col = "red") 
 points(abs(l), eloexpo, "l", col = "gold")
+points(abs(l), eloopti, "l", col = "grey")
 
 points(alberstable$rtgdiff, alberstable$P, type="l", col="red")
 points(elotable$rtgdiff, elotable$P, type="l", col="gold")
-legend("bottomright", legend = c("normal", "exponential"), col = c("red", "gold"), lwd = 2, cex = 0.9)
+legend("bottomright", legend = c("normal", "exponential", "exponential (alternative)"), col = c("red", "gold", "grey"), lwd = 2, cex = 0.9)
 
 ## ----differentprobssimu, cache=TRUE, echo=FALSE, fig.width=7, fig.height=4, out.width="70%", fig.cap = "Ratings from individuals that were based on either normally distributed winning probabilities or exponentially distributed winning probabilities. Code for the simulation and figure is in the \\nameref{sec:appendix}. \\label{fig:differentprobssimu}"----
 set.seed(123)
@@ -826,30 +830,34 @@ legend(1, 2.04, colnames(ratings), cex = 0.8, bty="n", pch = mysymbs, pt.cex = 1
 #                      412:432, 433:456, 457:484, 485:517, 518:559, 560:619, 620:735, 736:1000)
 #  
 #  elotable <- data.frame(rtgdiff = unlist(elotable),
-#                         P = rep(seq(0.5, 1, by=0.01), unlist(lapply(elotable, length))))
+#                         P = rep(seq(0.5, 1, by = 0.01), unlist(lapply(elotable, length))))
 #  alberstable <- data.frame(rtgdiff = unlist(alberstable),
-#                            P = rep(seq(0.5, 1, by=0.01), unlist(lapply(alberstable, length))))
+#                            P = rep(seq(0.5, 1, by = 0.01), unlist(lapply(alberstable, length))))
 #  
 #  w <- rep(0, 1001) # winner rating: constant
 #  l <- w - 0:1000 # loser rating: varying
 #  
 #  elonorm <- numeric(length(w))
 #  eloexpo <- numeric(length(w))
+#  eloopti <- numeric(length(w))
 #  
-#  i=100
 #  for(i in 1:length(w)) {
 #    elonorm[i] <- winprob(w[i], l[i], normprob = TRUE)
 #    eloexpo[i] <- winprob(w[i], l[i], normprob = FALSE)
+#    # EloOptimized package (same as aniDom with default parameters)
+#    eloopti[i] <- 1/(1 + exp(-0.01 * (w[i] - l[i])))
 #  }
 #  
 #  plot(0, 0, "n", xlim = c(0, 1000), ylim = c(0.5, 1), xlab = "rating difference",
-#       ylab = "winning probability", las = 1)
+#       ylab = "winning probability", las = 1, yaxs = "i")
 #  points(abs(l), elonorm, "l", col = "red")
 #  points(abs(l), eloexpo, "l", col = "gold")
+#  points(abs(l), eloopti, "l", col = "grey")
 #  
-#  points(alberstable$rtgdiff, alberstable$P, type = "l", col = "red")
-#  points(elotable$rtgdiff, elotable$P, type = "l", col = "gold")
-#  legend("bottomright", legend = c("normal", "exponential"), col = c("red", "gold"), lwd = 2, cex = 0.9)
+#  points(alberstable$rtgdiff, alberstable$P, type="l", col="red")
+#  points(elotable$rtgdiff, elotable$P, type="l", col="gold")
+#  legend("bottomright", legend = c("normal", "exponential", "exponential (alternative)"),
+#         col = c("red", "gold", "grey"), lwd = 2, cex = 0.9)
 
 ## ---- eval=FALSE------------------------------------------------------------------------------------------------------
 #  set.seed(123)
