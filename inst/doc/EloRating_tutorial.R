@@ -90,19 +90,24 @@ parasites$elo <- extract_elo(res, extractdate = parasites$Date, IDs = parasites$
 head(parasites)
 
 ## ---- echo=FALSE, fig.width=6, fig.height=3.8, out.width = "50%", fig.align='center', fig.cap="\\small Parasite count as a function of day-specific Elo ratings. Each individual has its own colour. Code to produce the figure is in the \\nameref{sec:appendix}. \\label{fig:parasites}"----
+# for simplicity's sake, use a glm, not glmm: it's just for illustration
 mod <- glm(parasites ~ elo, data = parasites, family = "poisson")
 pdata <- data.frame(elo = seq(min(parasites$elo), max(parasites$elo), length.out = 51))
 pdata$par <- predict(mod, newdata = pdata, type = "r")
-xcols <- rainbow(n = 9, alpha = 0.5)[parasites$id]
+if (exists("hcl.colors")) {
+  xcols <- hcl.colors(n = 9, palette = "zissou1", alpha = 0.5)[parasites$id]
+} else {
+  xcols <- rainbow(n = 9, alpha = 0.5)[parasites$id]
+}
 plot(parasites$elo, parasites$parasites, pch = 16, col = xcols, 
-     xlab = "Elo rating", ylab = "parasite count", las = 1)
+     xlab = "Elo rating", ylab = "parasite count", las = 1, cex = 1.3)
 points(pdata$elo, pdata$par, type = "l")
 
 ## ---- fig.width=7, fig.height=4.3, out.width="50%", fig.align='center', fig.cap="\\small Elo-ratings of 10 individuals over the entire study period. \\label{fig:one}"----
 eloplot(res)
 
 ## ---- fig.width=7, fig.height=4.3, out.width="50%", fig.align='center', fig.cap="\\small Elo-ratings of 5 individuals over a month. \\label{fig:two}"----
-eloplot(res, ids = c("s", "a", "w", "k", "c"), from = "2000-06-05", to = "2000-07-04")
+eloplot(eloobject = res, ids = c("s", "a", "w", "k", "c"), from = "2000-06-05", to = "2000-07-04")
 
 ## ---------------------------------------------------------------------------------------------------------------------
 xpres <- read.table(system.file("ex-presence.txt", package = "EloRating"), header = TRUE)
@@ -317,12 +322,12 @@ plotfoo <- function(xd, ex = FALSE) {
   xd$Loser <- as.character(xd$Loser)
   m <- unique(c(xd$Winner, xd$Loser))
   eres1 <- fastelo(xd$Winner, xd$Loser, m, rep(100, nrow(xd)), rep(1000, length(m)))
-  ores1 <- optimizek(eres1, krange = c(10, 400), resolution = 391)
+  ores1 <- optimizek(eres1, krange = c(0, 400), resolution = 101)
   yrange <- range(ores1$complete$loglik)
   
   if(ex) {
     eres2 <- fastelo(xd$Winner, xd$Loser, m, rep(100, nrow(xd)), rep(1000, length(m)), NORMPROB = FALSE)
-    ores2 <- optimizek(eres2, krange = c(10, 400), resolution = 391)
+    ores2 <- optimizek(eres2, krange = c(0, 400), resolution = 101)
     yrange <- range(c(ores1$complete$loglik, ores2$complete$loglik))
   }
   
@@ -344,11 +349,9 @@ plotfoo <- function(xd, ex = FALSE) {
   title(main = x)
 }
 
-par(mfrow = c(2, 3))
-if(runbaboonplots) plotfoo(baboons1)
+par(mfrow = c(2, 2), family = "serif")
 if(runbaboonplots) plotfoo(baboons2)
 if(runbaboonplots) plotfoo(baboons3)
-if(runbaboonplots) plotfoo(baboons4)
 plotfoo(adv)
 plotfoo(xdata)
 
@@ -389,55 +392,95 @@ arrows(x0 = x, y0 = -230, x1 = x, y1 = -220, col = "grey", lwd = 2, xpd = TRUE, 
 legend("bottom", legend = c("one interaction type", "threat (fight fixed)", "fight (threat fixed)"), 
        col = c("blue", "red", "grey"), lty = 1, cex = 0.7)
 
-## ----optistart, eval = TRUE, cache = TRUE, fig.width=7, fig.height=3.8, out.width = "70%", fig.cap = "\\small Comparison of performance between different approaches to assign custom start values.  \\label{fig:optistart}"----
+## ---------------------------------------------------------------------------------------------------------------------
+orires <- elo.seq(winner = adv$winner, 
+                  loser = adv$loser, 
+                  Date = adv$Date, 
+                  runcheck = FALSE)
+xres <- optistart(eloobject = orires, 
+                  runs = 5000)
+
+# using 'good' ('optimal') start values
+xres1 <- elo.seq(winner = adv$winner, 
+                 loser = adv$loser, 
+                 Date = adv$Date, 
+                 runcheck = FALSE, 
+                 startvalue = xres$resmat[c(which.max(xres$logliks)), ])
+# using 'bad' start values
+xres2 <- elo.seq(winner = adv$winner, 
+                 loser = adv$loser, 
+                 Date = adv$Date, 
+                 runcheck = FALSE, 
+                 startvalue = xres$resmat[c(which.min(xres$logliks)), ])
+
+## ---- eval=FALSE------------------------------------------------------------------------------------------------------
+#  eloplot(xres1)
+#  eloplot(xres2)
+
+## ---- fig.width=7, fig.height=4, out.width="70%", fig.cap = "Ratings with starting values that were created using the \\texttt{optistart()} function."----
+eloplot(xres1)
+
+## ----optistart, eval = TRUE, cache = TRUE, fig.width=7, fig.height=3.8, out.width = "70%", fig.cap = "\\small Comparison of performance between different approaches to assign custom start values. Note that the third boxplot is omitted for performance reasons. If you want to see it, you need to uncomment the relevant lines in the code block. \\label{fig:optistart}"----
 library(aniDom)
 set.seed(123)
-resmat <- matrix(ncol = 4, nrow = 100)
+resmat <- matrix(ncol = 4, nrow = 50)
 
 for (i in 1:nrow(resmat)) {
+  # create interactions from known ranks
   xd <- generate_interactions(N.inds = 10, N.obs = 200, b = -2, a = 1, id.biased = TRUE)
   allids <- letters[1:10]
   w <- allids[xd$interactions$Winner]
   l <- allids[xd$interactions$Loser]
   D <- seq.Date(as.Date("2000-01-01"), by = "day", length.out = length(w))
+  
+  # informed by known ranks
   myranks <- 1:10
   names(myranks) <- allids
   kvals <- rep(100, length(w))
-  
-  # informed by known ranks
   svals <- createstartvalues(ranks = myranks, shape = 0.5)$res
   ores1 <- fastelo(w, l, allids, kvals, svals)
   ores1 <- ores1[[1]][allids]
   
   # informed by optimized start values
-  templist <- list(allids = allids, misc = c(normprob = "1"), logtable = data.frame(winner = w, loser = l),
-                   kvals = rep(100, length(w)), startvalues = rep(1000, length(allids)))
-  svals <- optistart(templist, runs = 1000)$best
+  templist <- list(allids = allids, 
+                   misc = c(normprob = "1"), 
+                   logtable = data.frame(winner = w, loser = l),
+                   kvals = rep(100, length(w)), 
+                   startvalues = rep(1000, length(allids)))
+  svals <- optistart(templist, runs = 200)$best
   ores2 <- fastelo(w, l, allids, kvals, svals)
   ores2 <- ores2[[1]][allids]
   
   # with more runs
-  svals <- optistart(templist, runs = 10000)$best
-  ores3 <- fastelo(w, l, allids, kvals, svals)
-  ores3 <- ores3[[1]][allids]
+  # svals <- optistart(templist, runs = 2000)$best
+  # ores3 <- fastelo(w, l, allids, kvals, svals)
+  # ores3 <- ores3[[1]][allids]
   
   # uninformed
   svals <- rep(1000, length(allids))
   ores4 <- fastelo(w, l, allids, kvals, svals)
   ores4 <- ores4[[1]]
   
+  # store results
   resmat[i, 1] <- cor(ores1, myranks, method = "s")
   resmat[i, 2] <- cor(ores2, myranks, method = "s")
-  resmat[i, 3] <- cor(ores3, myranks, method = "s")
+  # resmat[i, 3] <- cor(ores3, myranks, method = "s")
   resmat[i, 4] <- cor(ores4, myranks, method = "s")
+  
+  # clean up
+  rm(xd, allids, w, l, D, myranks, kvals, svals, ores1, ores2, ores4, templist)
 }
 
+# 'inverse', so that correlations are positive
 resmat <- resmat * (-1)
 boxplot(resmat, axes = FALSE, boxwex = 0.4, lty = 1)
 axis(1, at = 1:4, tcl = 0, cex.axis = 0.7, padj = 0.5,
-     labels = c("informed by\nknown ranks", "informed by\noptimized start values\n(1000 runs)", 
-                "informed by\noptimized start values\n(10000 runs)", "uninformed"))
+     labels = c("informed by\nknown ranks", 
+                "informed by\noptimized start values\n(200 runs)", 
+                "informed by\noptimized start values\n(2000 runs)", 
+                "uninformed"))
 axis(2, las = 1)
+title(ylab = "Spearman correlation with true ranks")
 box()
 
 ## ---------------------------------------------------------------------------------------------------------------------
@@ -464,6 +507,7 @@ winprob(1200, 1200)
 winprob(1200, 1200, normprob = FALSE)
 
 ## ---- eval=TRUE, echo=FALSE, fig.width=7, fig.height=6, out.width="4in", fig.align='center', fig.cap="\\small Three ways of calculating winning probabilities. Up to a rating difference of 200 points, the two curves proposed by Elo 1978 (red and gold) are virtually indistinguishable. The step-wise curves are taken from Elo 1978 and Albers and de Vries 2001, which provide tables in intervals, for example, the winning probability is 0.5 if the rating difference is between 0 and 3. The curve for the algorithm used by Feldblum and colleagues and Farine and colleagues, in contrast, is much steeper (grey line). Code to produce the figure is in the \\nameref{sec:appendix}. \\label{fig:differentprobs}"----
+par(family = "serif")
 elotable <- list(0:3, 4:10, 11:17, 18:24, 25:31, 32:38, 39:45, 46:52, 53:59, 60:66, 67:74, 75:81, 82:88, 89:96, 97:103, 104:111, 112:119, 120:127, 128:135, 136:143, 144:151, 152:159, 160:168, 169:177, 178:186, 187:195, 196:205, 206:214, 215:224, 225:235, 236:246, 247:257, 258:269, 270:281, 282:294, 295:308, 309:323, 324:338, 339:354, 355:372, 373:391, 392:412, 413:436, 437:463, 464:494, 495: 530, 531:576, 577:636, 637:726, 727:920, 921:1000)
 alberstable <- list(0:3, 4:10, 11:17, 18:25, 26:32, 33:39, 40:46, 47:53, 54:61, 62:68, 69:76, 77:83, 84:91, 92:98, 99:106, 107:113, 114:121, 122:129, 130:137, 138:145, 146:153, 154:162, 163:170, 171:179, 180:188, 189:197, 198:206, 207:215, 216:225, 226:235, 236:245, 246:256, 257:267, 268:278, 279:290, 291:302, 303:315, 316:328, 329:344, 345:357, 358:374, 375:391, 392:411, 412:432, 433:456, 457:484, 485:517, 518:559, 560:619, 620:735, 736:1000)
 
@@ -482,7 +526,8 @@ for(i in 1:length(w)) {
   elonorm[i] <- winprob(w[i], l[i], normprob = TRUE)
   eloexpo[i] <- winprob(w[i], l[i], normprob = FALSE)
   # EloOptimized package (same as aniDom with default parameters)
-  eloopti[i] <- 1/(1 + exp(-0.01 * (w[i] - l[i])))
+  # eloopti[i] <- 1/(1 + exp(-0.01 * (w[i] - l[i])))
+  eloopti[i] <- winprob(w[i], l[i], normprob = FALSE, fac = 0.01)
 }
 
 plot(0, 0, "n", xlim = c(0, 1000), ylim = c(0.5, 1), xlab = "rating difference", ylab = "winning probability", las = 1, yaxs = "i")
@@ -844,20 +889,24 @@ legend(1, 2.04, colnames(ratings), cex = 0.8, bty="n", pch = mysymbs, pt.cex = 1
 #  for(i in 1:length(w)) {
 #    elonorm[i] <- winprob(w[i], l[i], normprob = TRUE)
 #    eloexpo[i] <- winprob(w[i], l[i], normprob = FALSE)
-#    # EloOptimized package (same as aniDom with default parameters)
-#    eloopti[i] <- 1/(1 + exp(-0.01 * (w[i] - l[i])))
+#    eloopti[i] <- winprob(w[i], l[i], normprob = FALSE, fac = 0.01)
 #  }
 #  
-#  plot(0, 0, "n", xlim = c(0, 1000), ylim = c(0.5, 1), xlab = "rating difference",
-#       ylab = "winning probability", las = 1, yaxs = "i")
+#  plot(0, 0, type = "n", las = 1, yaxs = "i",
+#       xlim = c(0, 1000), ylim = c(0.5, 1),
+#       xlab = "rating difference",
+#       ylab = "winning probability")
 #  points(abs(l), elonorm, "l", col = "red")
 #  points(abs(l), eloexpo, "l", col = "gold")
 #  points(abs(l), eloopti, "l", col = "grey")
 #  
 #  points(alberstable$rtgdiff, alberstable$P, type="l", col="red")
 #  points(elotable$rtgdiff, elotable$P, type="l", col="gold")
-#  legend("bottomright", legend = c("normal", "exponential", "exponential (alternative)"),
-#         col = c("red", "gold", "grey"), lwd = 2, cex = 0.9)
+#  legend("bottomright",
+#         legend = c("normal", "exponential", "exponential (alternative)"),
+#         col = c("red", "gold", "grey"),
+#         lwd = 2,
+#         cex = 0.9)
 
 ## ---- eval=FALSE------------------------------------------------------------------------------------------------------
 #  set.seed(123)
