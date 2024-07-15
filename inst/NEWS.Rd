@@ -1,6 +1,38 @@
 \name{NEWS}
 \title{News for Package \pkg{EloRating}}
 
+\section{Changes in version 0.46.16 (2024-07-15)}{
+	\itemize{
+	  \item add test to seqcheck for rows in presence matrix that consist of only zeros (#11)
+	}
+}
+
+\section{Changes in version 0.46.15 (2023-06-02)}{
+	\itemize{
+	  \item fixed bug in creatematrix (#10)
+	}
+}
+
+\section{Changes in version 0.46.14 (2023-02-02)}{
+	\itemize{
+	  \item fixed bug in summary.elo.seq which reported start values incorrectly (#9)
+	  \item code and documentation cosmetics
+	  \item removed TravisCI code testing
+	}
+}
+
+\section{Changes in version 0.46.13 (2020-11-18)}{
+	\itemize{
+	  \item fixed bug in elo.seq when \code{init = "bottom"}
+	}
+}
+
+\section{Changes in version 0.46.12 (2020-07-19)}{
+	\itemize{
+	  \item set up remote testing via TravisCI and AppVeyor
+	}
+}
+
 \section{Changes in version 0.46.11 (2020-03-12)}{
 	\itemize{
 	  \item fixes bug that set tied relationships to zero relationships in the output of \code{\link{ISI}}
