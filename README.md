@@ -1,18 +1,15 @@
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/EloRating)](https://CRAN.R-project.org/package=EloRating)
+[![R-CMD-check](https://github.com/gobbios/EloRating/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gobbios/EloRating/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/gobbios/EloRating/branch/master/graph/badge.svg)](https://app.codecov.io/gh/gobbios/EloRating?branch=master)
+
+<!-- badges: end -->
 
 # EloRating
-
-currently on CRAN:
-
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/EloRating)](https://cran.r-project.org/package=EloRating)
-
 
 To install the current development version from GitHub, use the following command:
 
 `devtools::install_github("gobbios/EloRating")`
-
-<!-- badges: start -->
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/gobbios/EloRating?branch=master&svg=true)](https://ci.appveyor.com/project/gobbios/EloRating)
-<!-- badges: end -->
 
 Since version 0.45-0, the package contains C++ code, which means that you need to have some extra tools installed on your system if you want to install the package directly from GitHub:
 
@@ -23,5 +20,5 @@ Since version 0.45-0, the package contains C++ code, which means that you need t
 
 If you want to have a pdf of the tutorial, please use:
 
-`devtools::install_github("gobbios/EloRating", build_vignettes=TRUE)`
+`devtools::install_github("gobbios/EloRating", build_vignettes = TRUE)`
 
